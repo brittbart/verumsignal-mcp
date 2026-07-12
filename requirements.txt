@@ -1,0 +1,7 @@
+# Verum Signal MCP Server has no third-party dependencies.
+# It uses only the Python standard library (json, os, sys, urllib).
+# Requires Python 3.9 or later.
+#
+# This file exists so tooling that expects one (pip, dependency
+# scanners, enterprise software inventories) finds an explicit,
+# empty answer rather than no answer at all.
