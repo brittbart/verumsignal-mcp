@@ -26,6 +26,7 @@ _QUOTA_HEADERS = {
     "X-RateLimit-Remaining":  "rate_limit_remaining",
     "X-Quota-Limit":          "monthly_quota_limit",
     "X-Quota-Remaining":      "monthly_quota_remaining",
+    "Retry-After":            "retry_after_seconds",
 }
 
 
@@ -310,7 +311,7 @@ def handle_message(msg):
         send({"jsonrpc":"2.0","id":msg_id,"result":{
             "protocolVersion":"2024-11-05",
             "capabilities":{"tools":{}},
-            "serverInfo":{"name":"verum-signal","version":"0.1.0"}
+            "serverInfo":{"name":"verum-signal","version":"0.1.1"}
         }})
 
     elif method == "tools/list":

@@ -2,6 +2,12 @@
 
 All notable changes to the Verum Signal MCP server are documented here.
 
+## [0.1.1] — 2026-07-12
+
+### Fixed
+
+- `Retry-After` is now surfaced in the `_quota` field on rate-limit errors. The REST API has always sent this header on 429s caused by the per-minute rate limit; the MCP server's header mapping simply never looked for it, so an agent hitting a rate limit saw `rate_limit_remaining: 0` with no indication of how long to wait before retrying. It now appears as `retry_after_seconds` alongside the other quota fields whenever the API sends it — not present on successful calls or monthly-quota rejections, since a fixed retry time is meaningless for a quota that resets monthly rather than every minute.
+
 ## [0.1.0] — 2026-07-12
 
 Initial packaged release.
