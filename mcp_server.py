@@ -91,8 +91,12 @@ TOOLS = [
         "name": "get_outlet_score",
         "description": (
             "Get the credibility score and verdict breakdown for a news outlet. "
-            "Returns a score from 0-100, tier (published/stabilizing/limited_data/tracked), "
-            "and counts of each verdict type. Use this to assess source reliability."
+            "Returns a score from 0-100 and a maturity tier: 'published' = score is "
+            "solid and citation-ready; 'stabilizing' = score is firming up but may "
+            "still move; 'limited_data' = early/preliminary, cite with caution; "
+            "'tracked' = minimal data, not yet reliable. Also returns counts of each "
+            "verdict type. When a user asks whether a source is 'solid' or 'still "
+            "early', answer using the tier."
         ),
         "inputSchema": {
             "type": "object",
@@ -112,8 +116,11 @@ TOOLS = [
             "outlet, verdict, or claim origin. This does NOT perform text search — "
             "there is no keyword or topic search over the claim corpus. It returns "
             "claims in recency order, most recent first, matching whatever filters "
-            "are given. Use get_outlet_score for a specific outlet's overall "
-            "reliability, or get_debate_verdicts for claims from a specific debate."
+            "are given. For topic questions, retrieve recent claims and debate "
+            "verdicts and filter locally. Use get_outlet_score for a specific "
+            "outlet's overall reliability, get_debate_verdicts for claims from a "
+            "specific debate, or get_api_status for corpus size, coverage and "
+            "freshness questions."
         ),
         "inputSchema": {
             "type": "object",
@@ -144,10 +151,11 @@ TOOLS = [
     {
         "name": "get_debate_verdicts",
         "description": (
-            "Get ALL verified claims from a political debate. Returns claims with "
+            "Get ALL checked claims from a political debate. Returns claims with "
             "speaker attribution, verdicts, and evidence. Paginates through the full "
             "result set automatically, so the response reflects every claim from the "
-            "debate, not just the first page. Use this to fact-check debate statements."
+            "debate, not just the first page. Use this for claims made during a "
+            "specific debate."
         ),
         "inputSchema": {
             "type": "object",
@@ -171,7 +179,11 @@ TOOLS = [
     },
     {
         "name": "get_api_status",
-        "description": "Get Verum Signal corpus statistics: total articles, claims, and verified claim counts.",
+        "description": (
+            "Get Verum Signal corpus statistics: total articles, total claims, and "
+            "how many carry a verdict. Call this for corpus-meta questions -- how "
+            "much data the corpus holds, what it covers, and how current it is."
+        ),
         "inputSchema": {
             "type": "object",
             "properties": {},
@@ -311,7 +323,7 @@ def handle_message(msg):
         send({"jsonrpc":"2.0","id":msg_id,"result":{
             "protocolVersion":"2024-11-05",
             "capabilities":{"tools":{}},
-            "serverInfo":{"name":"verum-signal","version":"0.1.1"}
+            "serverInfo":{"name":"verum-signal","version":"0.1.2"}
         }})
 
     elif method == "tools/list":
