@@ -2,6 +2,18 @@
 
 All notable changes to the Verum Signal MCP server are documented here.
 
+## [0.1.2] — 2026-08-16
+
+### Changed
+
+- **`get_outlet_score` now explains what each tier means.** The description returned a `tier` field without ever saying what the values signify, so a model had a label and nothing to map it onto. An external agent-readiness audit found this directly: Gemini 3.1 Pro made a single successful call and still failed prompts asking whether a score was "solid yet". The description now defines `published`, `stabilizing`, `limited_data` and `tracked`, and says to answer solid-or-still-early questions using the tier. Text shipped as the auditor wrote it.
+
+- **`list_recent_claims` and `get_api_status` gained routing cues.** The same audit found corpus-meta questions invoked the server in 76 of 90 observations and topic queries in 80 of 90, against full invocation everywhere else — models were answering from their own knowledge instead of calling. `list_recent_claims` now says what to do about topic questions given there is no text search, and points at `get_api_status` for corpus size, coverage and freshness. `get_api_status` now names the corpus-meta use case explicitly. The auditor's suggested replacement text was adapted rather than taken verbatim: their quoted "current" description was abridged, and a wholesale swap would have deleted the recency-order sentence and two cross-tool pointers the real description carries.
+
+### Fixed
+
+- **Brand-prohibited language removed from three tool descriptions.** `get_debate_verdicts` described "verified claims" and told models to "fact-check" debate statements; `get_api_status` reported "verified claim counts". Verum Signal does not describe itself in those terms in user-facing copy, and a tool description is the most user-facing text in this repository — every model reads it before deciding whether to call. This was not in the audit's findings; it surfaced while checking the auditor's quoted text against the deployed file. The v0.1.0 compliance sweep covered the README and CHANGELOG but not the descriptions themselves.
+
 ## [0.1.1] — 2026-07-12
 
 ### Fixed
