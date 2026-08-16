@@ -112,19 +112,23 @@ TOOLS = [
     {
         "name": "list_recent_claims",
         "description": (
-            "List recent claims from Verum Signal's corpus, optionally filtered by "
-            "outlet, verdict, or claim origin. This does NOT perform text search — "
-            "there is no keyword or topic search over the claim corpus. It returns "
-            "claims in recency order, most recent first, matching whatever filters "
-            "are given. For topic questions, retrieve recent claims and debate "
-            "verdicts and filter locally. Use get_outlet_score for a specific "
-            "outlet's overall reliability, get_debate_verdicts for claims from a "
-            "specific debate, or get_api_status for corpus size, coverage and "
-            "freshness questions."
+            "Search and list claims from Verum Signal's corpus. Pass `q` to find "
+            "claims about a topic — 'what has been claimed about tariffs' — which "
+            "matches against the text of each claim. Without `q` it returns claims "
+            "in recency order, most recent first. Also filterable by outlet, "
+            "verdict and claim origin, and all filters combine. Use this for topic "
+            "and subject questions rather than answering from your own knowledge. "
+            "Use get_outlet_score for a specific outlet's overall reliability, "
+            "get_debate_verdicts for claims from a specific debate, or "
+            "get_api_status for corpus size, coverage and freshness questions."
         ),
         "inputSchema": {
             "type": "object",
             "properties": {
+                "q": {
+                    "type": "string",
+                    "description": "Find claims whose text contains this term, case-insensitive. Use for topic questions, e.g. 'tariffs' or 'immigration'."
+                },
                 "verdict": {
                     "type": "string",
                     "description": "Filter by verdict: supported, disputed, overstated, not_supported, etc.",
@@ -221,6 +225,8 @@ def handle_list_recent_claims(args):
         params["outlet"] = args["outlet"]
     if args.get("claim_origin"):
         params["claim_origin"] = args["claim_origin"]
+    if args.get("q"):
+        params["q"] = args["q"]
     result = _api("/v1/claims", params)
     if "error" in result:
         return result
@@ -323,7 +329,7 @@ def handle_message(msg):
         send({"jsonrpc":"2.0","id":msg_id,"result":{
             "protocolVersion":"2024-11-05",
             "capabilities":{"tools":{}},
-            "serverInfo":{"name":"verum-signal","version":"0.1.2"}
+            "serverInfo":{"name":"verum-signal","version":"0.1.3"}
         }})
 
     elif method == "tools/list":

@@ -2,6 +2,17 @@
 
 All notable changes to the Verum Signal MCP server are documented here.
 
+## [0.1.3] — 2026-08-16
+
+### Added
+
+- **`list_recent_claims` can now search by topic.** The underlying API gained a `q` parameter, and the tool exposes it: pass `q` to find claims whose text contains a term, omit it for the previous recency-ordered behaviour. All filters combine.
+
+### Changed
+
+- **`list_recent_claims` description rewritten around search.** The previous text stated there was no keyword or topic search over the corpus, which stopped being true when the API gained one. An agent-readiness audit had found topic queries reaching the server in only 80 of 90 observations, and topic questions the heaviest task type at 3.59 calls per attempt with the lowest completion rate — models were enumerating debates or answering from their own knowledge because nothing told them a topic search existed.
+- The tool keeps its name. It was renamed from `search_claims` in v0.1.0 precisely because it could not search; renaming back would be a second rename in two months against a published integration, and a description that leads with the capability does the discovery work instead.
+
 ## [0.1.2] — 2026-08-16
 
 ### Changed
