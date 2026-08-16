@@ -183,6 +183,30 @@ TOOLS = [
         }
     },
     {
+        "name": "list_outlets",
+        "description": (
+            "List every news outlet Verum Signal tracks, with each one's score, "
+            "tier and evaluated-claim count. Call this when a user asks which "
+            "outlets are covered, how many there are, or whether a particular "
+            "publication is included -- and call it after get_outlet_score "
+            "returns not found, to tell the user what IS available instead of "
+            "guessing at another domain. Outlets that carry a score are listed "
+            "first; the rest are tracked but have too few evaluated claims to be "
+            "scored yet."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer",
+                    "description": "How many outlets to return (1-200, default 50). Scored outlets come first.",
+                    "default": 50
+                }
+            },
+            "required": []
+        }
+    },
+    {
         "name": "get_api_status",
         "description": (
             "Get Verum Signal corpus statistics: total articles, total claims, and "
@@ -304,6 +328,53 @@ def handle_list_debates(args):
     return _carry_quota(response, result)
 
 
+def handle_list_outlets(args):
+    """Enumerate covered outlets.
+
+    Exists so the structured 404 on get_outlet_score has a pointer an agent can
+    actually follow. Scored outlets are sorted first because that is what a user
+    asking "which outlets do you cover" almost always means, while the tracked
+    remainder is still returned so the answer is complete.
+    """
+    limit = min(max(int(args.get("limit", 50)), 1), 200)
+
+    # The endpoint caps a page at 100, so a single call cannot return the whole
+    # set. Page through it. MAX_PAGES bounds a pathological case rather than
+    # normally triggering -- 5 pages is 500 outlets against 166 tracked today.
+    outlets = []
+    cursor = 0
+    result = None
+    MAX_PAGES = 5
+    for _ in range(MAX_PAGES):
+        result = _api("/v1/outlets", {"cursor": cursor, "limit": 100})
+        if "error" in result:
+            return result
+        outlets.extend(result.get("data", []))
+        pagination = result.get("pagination", {})
+        if not pagination.get("has_more"):
+            break
+        cursor = pagination.get("next_cursor")
+        if cursor is None:
+            break
+    scored = [o for o in outlets if o.get("score") is not None]
+    tracked = [o for o in outlets if o.get("score") is None]
+    ordered = (scored + tracked)[:limit]
+    response = {
+        "returned": len(ordered),
+        "total_tracked": len(outlets),
+        "total_scored": len(scored),
+        "note": ("Outlets with a score have enough evaluated claims to be scored. "
+                 "The remainder are tracked but below that threshold."),
+        "outlets": [{
+            "domain": o.get("id"),
+            "score": o.get("score"),
+            "tier": o.get("tier"),
+            "evaluated_claims": o.get("total_evaluated_claims"),
+        } for o in ordered],
+    }
+    return _carry_quota(response, result)
+
+
 def handle_get_api_status(args):
     return _api("/v1/meta")
 
@@ -313,6 +384,7 @@ HANDLERS = {
     "list_recent_claims":   handle_list_recent_claims,
     "get_debate_verdicts":  handle_get_debate_verdicts,
     "list_debates":         handle_list_debates,
+    "list_outlets":         handle_list_outlets,
     "get_api_status":       handle_get_api_status,
 }
 
@@ -330,7 +402,7 @@ def handle_message(msg):
         send({"jsonrpc":"2.0","id":msg_id,"result":{
             "protocolVersion":"2024-11-05",
             "capabilities":{"tools":{}},
-            "serverInfo":{"name":"verum-signal","version":"0.1.4"}
+            "serverInfo":{"name":"verum-signal","version":"0.1.5"}
         }})
 
     elif method == "tools/list":

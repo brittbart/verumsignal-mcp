@@ -2,6 +2,12 @@
 
 All notable changes to the Verum Signal MCP server are documented here.
 
+## [0.1.5] — 2026-08-16
+
+### Added
+
+- **`list_outlets` — enumerate covered outlets.** The structured 404 on `get_outlet_score` tells an agent to call the outlets endpoint to see what is covered, but no tool exposed it, so the recovery path terminated in an instruction an agent could not follow. Found by an external reviewer after delivery. Returns domain, score, tier and evaluated-claim count, scored outlets first, with the tracked/scored split stated so "how many outlets do you cover" resolves in one call.
+
 ## [0.1.4] — 2026-08-16
 
 ### Fixed
