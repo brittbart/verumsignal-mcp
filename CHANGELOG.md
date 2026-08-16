@@ -2,6 +2,12 @@
 
 All notable changes to the Verum Signal MCP server are documented here.
 
+## [0.1.4] — 2026-08-16
+
+### Fixed
+
+- **`get_outlet_score` tier wording corrected to describe volume, not confidence.** v0.1.2 shipped the auditor's suggested text verbatim; it described `published` as "solid and citation-ready" and `tracked` as "minimal data, not yet reliable". The tiers are claim-count bands and nothing else — 100, 50 and 20 scoreable claims — with no confidence input in the computation. Verum Signal's published methodology does not define tiers at all, so that wording asserted a meaning no governing document states, and "not yet reliable" read as a judgement about the outlet rather than a statement about how much evidence exists. The description now gives the thresholds and says explicitly that the tier describes evidence volume.
+
 ## [0.1.3] — 2026-08-16
 
 ### Added

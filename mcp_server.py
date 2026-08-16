@@ -91,12 +91,13 @@ TOOLS = [
         "name": "get_outlet_score",
         "description": (
             "Get the credibility score and verdict breakdown for a news outlet. "
-            "Returns a score from 0-100 and a maturity tier: 'published' = score is "
-            "solid and citation-ready; 'stabilizing' = score is firming up but may "
-            "still move; 'limited_data' = early/preliminary, cite with caution; "
-            "'tracked' = minimal data, not yet reliable. Also returns counts of each "
-            "verdict type. When a user asks whether a source is 'solid' or 'still "
-            "early', answer using the tier."
+            "Returns a score from 0-100 and a tier indicating how many scoreable "
+            "claims the score rests on: 'published' = 100 or more, 'stabilizing' = "
+            "50 or more, 'limited_data' = 20 or more, 'tracked' = below 20, where no "
+            "score is published. The tier describes evidence volume only, not a "
+            "judgement about the outlet. Also returns counts of each verdict type. "
+            "When a user asks whether a score is well established or still early, "
+            "answer using the tier together with the claim count."
         ),
         "inputSchema": {
             "type": "object",
@@ -329,7 +330,7 @@ def handle_message(msg):
         send({"jsonrpc":"2.0","id":msg_id,"result":{
             "protocolVersion":"2024-11-05",
             "capabilities":{"tools":{}},
-            "serverInfo":{"name":"verum-signal","version":"0.1.3"}
+            "serverInfo":{"name":"verum-signal","version":"0.1.4"}
         }})
 
     elif method == "tools/list":
