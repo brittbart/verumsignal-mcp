@@ -2,6 +2,12 @@
 
 All notable changes to the Verum Signal MCP server are documented here.
 
+## [0.1.6] — 2026-08-16
+
+### Changed
+
+- **`list_outlets` returns the scored set by default.** An external retest measured this as the lowest-utility tool on the surface — 8 useful calls out of 23 — because it returned all 166 tracked outlets and models could not extract an answer from the list. 146 of those carry no score. Since it is the designed recovery path for the outlet 404, its low usefulness weakened the recovery it exists to complete. The counts remain in every response, so a coverage question is still answerable in one call, and `include_tracked=true` returns the full list. The note now states how many outlets are tracked without a score and how to reach them, so the shorter default does not silently understate coverage.
+
 ## [0.1.5] — 2026-08-16
 
 ### Added

@@ -191,16 +191,22 @@ TOOLS = [
             "publication is included -- and call it after get_outlet_score "
             "returns not found, to tell the user what IS available instead of "
             "guessing at another domain. Outlets that carry a score are listed "
-            "first; the rest are tracked but have too few evaluated claims to be "
-            "scored yet."
+            "first. By default only scored outlets are returned; the response "
+            "always reports how many further outlets are tracked without a "
+            "score, and include_tracked=true lists them."
         ),
         "inputSchema": {
             "type": "object",
             "properties": {
                 "limit": {
                     "type": "integer",
-                    "description": "How many outlets to return (1-200, default 50). Scored outlets come first.",
+                    "description": "How many outlets to return (1-200, default 50).",
                     "default": 50
+                },
+                "include_tracked": {
+                    "type": "boolean",
+                    "description": "Include outlets that are tracked but have too few claims to be scored. Default false — the scored set is almost always what a coverage question means.",
+                    "default": False
                 }
             },
             "required": []
@@ -358,13 +364,30 @@ def handle_list_outlets(args):
             break
     scored = [o for o in outlets if o.get("score") is not None]
     tracked = [o for o in outlets if o.get("score") is None]
-    ordered = (scored + tracked)[:limit]
+
+    # Scored only by default. Returning all 166 made this the lowest-utility
+    # tool on the surface -- a model answering "that outlet is not covered, here
+    # is what is" had to find 20 useful rows inside 166, 146 of them nulls. The
+    # counts below still answer "how many outlets do you cover" in one call.
+    include_tracked = bool(args.get("include_tracked", False))
+    pool = (scored + tracked) if include_tracked else scored
+    ordered = pool[:limit]
+
+    if include_tracked:
+        _note = ("Outlets with a score have enough evaluated claims to be scored; "
+                 "the rest are tracked but below that threshold.")
+    else:
+        _note = (f"Showing scored outlets only. {len(tracked)} further outlets are "
+                 f"tracked but have too few evaluated claims to carry a score -- "
+                 f"pass include_tracked=true to list them. When reporting coverage, "
+                 f"say {len(scored)} scored of {len(outlets)} tracked.")
+
     response = {
         "returned": len(ordered),
         "total_tracked": len(outlets),
         "total_scored": len(scored),
-        "note": ("Outlets with a score have enough evaluated claims to be scored. "
-                 "The remainder are tracked but below that threshold."),
+        "scored_only": not include_tracked,
+        "note": _note,
         "outlets": [{
             "domain": o.get("id"),
             "score": o.get("score"),
@@ -402,7 +425,7 @@ def handle_message(msg):
         send({"jsonrpc":"2.0","id":msg_id,"result":{
             "protocolVersion":"2024-11-05",
             "capabilities":{"tools":{}},
-            "serverInfo":{"name":"verum-signal","version":"0.1.5"}
+            "serverInfo":{"name":"verum-signal","version":"0.1.6"}
         }})
 
     elif method == "tools/list":
