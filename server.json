@@ -1,0 +1,31 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.brittbart/verumsignal-mcp",
+  "title": "Verum Signal",
+  "description": "Political debate claims from Verum Signal: who said each one and how it was rated.",
+  "repository": {
+    "url": "https://github.com/brittbart/verumsignal-mcp",
+    "source": "github"
+  },
+  "websiteUrl": "https://verumsignal.com/developers",
+  "version": "0.2.0",
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "verumsignal-mcp",
+      "version": "0.2.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "VS_API_KEY",
+          "description": "Your Verum Signal API key (vs_live_...). Get one at https://verumsignal.com/developers",
+          "isRequired": true,
+          "isSecret": true,
+          "format": "string"
+        }
+      ]
+    }
+  ]
+}

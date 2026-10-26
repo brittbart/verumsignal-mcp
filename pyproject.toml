@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "verumsignal-mcp"
+version = "0.2.0"
+description = "MCP server for Verum Signal: political debate claims, who said each one and how it was rated."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Verum Signal LLC" }]
+keywords = ["mcp", "model-context-protocol", "debates", "politics", "claims", "elections"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://verumsignal.com"
+Documentation = "https://verumsignal.com/developers"
+Source = "https://github.com/brittbart/verumsignal-mcp"
+Changelog = "https://github.com/brittbart/verumsignal-mcp/blob/main/CHANGELOG.md"
+
+[project.scripts]
+verumsignal-mcp = "verumsignal_mcp.server:main"
+
+[tool.setuptools]
+packages = ["verumsignal_mcp"]

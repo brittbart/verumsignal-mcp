@@ -2,6 +2,17 @@
 
 All notable changes to the Verum Signal MCP server are documented here.
 
+## [0.2.0] — 2026-10-25
+
+### Changed
+
+- **Published on PyPI and listed in the official MCP Registry.** Install with `pip install verumsignal-mcp` or run with `uvx verumsignal-mcp`. The server moved into the `verumsignal_mcp` package; `mcp_server.py` at the repository root still starts it from a clone, so existing configs keep working.
+- **`list_recent_claims` returns claims news outlets report themselves.** Quoted claims an outlet attributes to someone else are no longer served, and the `claim_origin` parameter is gone.
+
+### Removed
+
+- **`get_outlet_score` and `list_outlets`.** Outlet-level scores are not offered while Verum Signal's outlet pages are held for review. Breaking change for agents that called either tool, hence 0.2.0. They may return in a later version.
+
 ## [0.1.6] — 2026-08-16
 
 ### Changed
