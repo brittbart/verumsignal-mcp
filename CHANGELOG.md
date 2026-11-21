@@ -10,6 +10,10 @@ All notable changes to the Verum Signal MCP server are documented here.
 - **`list_event_claims` — claims across every debate and press conference.** Filters by topic, event type, rating and date, with a cursor, so an agent can page past the first search results. Backed by `/v1/event-claims`.
 - **`live_now` — what is being rated live.** The event being covered, its page and its newest rated claims, or the next listed event when nothing is live. Backed by `/v1/live`, which uses the same definition of live as verumsignal.com.
 
+### Distribution
+
+- **Ships as an MCP bundle (`.mcpb`) on GitHub Releases**, which Claude Desktop installs with a double-click and which the MCP Registry lists. The bundle is built reproducibly by `scripts/build_mcpb.py`, and its SHA-256 is recorded in `server.json`. The PyPI package stays at 0.2.0 until the next release.
+
 ### Fixed
 
 - **`get_debate_verdicts` now reports `is_provisional` correctly.** The API sends `verdict_status`, never a field named `is_provisional`, so every claim came back with `is_provisional: null` and an agent could not tell a provisional rating from a final one. It is now true when the rating is provisional and false otherwise.

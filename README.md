@@ -22,6 +22,8 @@ Full parameter schemas are in the tool definitions themselves (`verumsignal_mcp/
 
 Requires Python 3.9+ and no third-party dependencies.
 
+**Claude Desktop, one click:** download `verumsignal-mcp-0.3.0.mcpb` from the [latest release](https://github.com/brittbart/verumsignal-mcp/releases/latest) and open it. Claude Desktop installs the server and asks for your API key.
+
 **With uv** (nothing to install first):
 
 ```json
@@ -35,6 +37,8 @@ Requires Python 3.9+ and no third-party dependencies.
   }
 }
 ```
+
+The PyPI package is at 0.2.0 for now, without `search_claims`, `list_event_claims` and `live_now`. To run 0.3.0 with uv before it catches up, use `"args": ["--from", "git+https://github.com/brittbart/verumsignal-mcp", "verumsignal-mcp"]`.
 
 **With pip:**
 

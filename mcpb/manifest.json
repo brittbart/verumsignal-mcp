@@ -1,0 +1,95 @@
+{
+  "manifest_version": "0.3",
+  "name": "verumsignal-mcp",
+  "display_name": "Verum Signal",
+  "version": "0.3.0",
+  "description": "Rated political claims from debates, press conferences and the news, with who said each one.",
+  "long_description": "Search rated political claims from debates, press conferences and news coverage, see what is being rated live, and get every rated claim from a debate, each with who said it and a link to its page. Requires a Verum Signal API key.",
+  "author": {
+    "name": "Verum Signal LLC",
+    "url": "https://verumsignal.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brittbart/verumsignal-mcp"
+  },
+  "homepage": "https://verumsignal.com",
+  "documentation": "https://verumsignal.com/developers",
+  "support": "https://github.com/brittbart/verumsignal-mcp/issues",
+  "license": "MIT",
+  "keywords": [
+    "politics",
+    "debates",
+    "press-conferences",
+    "claims",
+    "elections",
+    "news"
+  ],
+  "server": {
+    "type": "python",
+    "entry_point": "server/main.py",
+    "mcp_config": {
+      "command": "python3",
+      "args": [
+        "${__dirname}/server/main.py"
+      ],
+      "env": {
+        "VS_API_KEY": "${user_config.api_key}"
+      },
+      "platform_overrides": {
+        "win32": {
+          "command": "python"
+        }
+      }
+    }
+  },
+  "tools": [
+    {
+      "name": "search_claims",
+      "description": "Search rated claims about a topic from debates, press conferences and the news in one call, each with its rating, who said it and a link."
+    },
+    {
+      "name": "list_event_claims",
+      "description": "List rated claims from every public debate and press conference, filtered by topic, event type, rating and date, with a cursor."
+    },
+    {
+      "name": "live_now",
+      "description": "Whether a debate or press conference is being covered live, with its newest rated claims, or the next listed event."
+    },
+    {
+      "name": "list_recent_claims",
+      "description": "Claims reported by news outlets, with their ratings, searchable by topic."
+    },
+    {
+      "name": "get_debate_verdicts",
+      "description": "Every rated claim from one debate, with the speaker, the rating and whether it is still provisional."
+    },
+    {
+      "name": "list_debates",
+      "description": "Available debates with claim counts, dates and status."
+    },
+    {
+      "name": "get_api_status",
+      "description": "How much the corpus holds, what it covers and how current it is."
+    }
+  ],
+  "user_config": {
+    "api_key": {
+      "type": "string",
+      "title": "Verum Signal API key",
+      "description": "Your API key (vs_live_...). Get one at https://verumsignal.com/developers",
+      "required": true,
+      "sensitive": true
+    }
+  },
+  "compatibility": {
+    "platforms": [
+      "darwin",
+      "win32",
+      "linux"
+    ],
+    "runtimes": {
+      "python": ">=3.9"
+    }
+  }
+}

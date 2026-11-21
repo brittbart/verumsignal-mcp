@@ -11,9 +11,10 @@
   "version": "0.3.0",
   "packages": [
     {
-      "registryType": "pypi",
-      "identifier": "verumsignal-mcp",
+      "registryType": "mcpb",
+      "identifier": "https://github.com/brittbart/verumsignal-mcp/releases/download/v0.3.0/verumsignal-mcp-0.3.0.mcpb",
       "version": "0.3.0",
+      "fileSha256": "5e1f5a6ef55c483fcb2ba671990012ff1d86d47fa0cefe62cccf2c0ae71f501b",
       "transport": {
         "type": "stdio"
       },
