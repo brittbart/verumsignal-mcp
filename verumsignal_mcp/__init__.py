@@ -1,2 +1,2 @@
-"""Verum Signal MCP server: political debate claims, who said each one and how it was rated."""
-__version__ = "0.2.0"
+"""Verum Signal MCP server: rated political claims from debates, press conferences and the news."""
+__version__ = "0.3.0"

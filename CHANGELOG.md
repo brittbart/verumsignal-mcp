@@ -2,6 +2,18 @@
 
 All notable changes to the Verum Signal MCP server are documented here.
 
+## [0.3.0] — 2026-11-21
+
+### Added
+
+- **`search_claims` — one search across live events and the news.** Rated claims about a topic from debates, press conferences and news outlets in one call, newest first, each with its rating, the speaker for live events, and a link to its page. Narrows by event type, rating and date. A multi-word phrase that matches nothing returns a count per word, so an agent can say the phrase was not found rather than that nothing related exists. Backed by the API's new `/v1/search`.
+- **`list_event_claims` — claims across every debate and press conference.** Filters by topic, event type, rating and date, with a cursor, so an agent can page past the first search results. Backed by `/v1/event-claims`.
+- **`live_now` — what is being rated live.** The event being covered, its page and its newest rated claims, or the next listed event when nothing is live. Backed by `/v1/live`, which uses the same definition of live as verumsignal.com.
+
+### Fixed
+
+- **`get_debate_verdicts` now reports `is_provisional` correctly.** The API sends `verdict_status`, never a field named `is_provisional`, so every claim came back with `is_provisional: null` and an agent could not tell a provisional rating from a final one. It is now true when the rating is provisional and false otherwise.
+
 ## [0.2.0] — 2026-10-25
 
 ### Changed

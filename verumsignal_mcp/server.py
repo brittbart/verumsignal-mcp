@@ -18,7 +18,7 @@ import urllib.request, urllib.parse, urllib.error
 try:
     from verumsignal_mcp import __version__
 except ImportError:  # run as a loose file
-    __version__ = "0.2.0"
+    __version__ = "0.3.0"
 
 VS_API_BASE = os.environ.get("VS_API_BASE", "https://api.verumsignal.com")
 VS_API_KEY  = os.environ.get("VS_API_KEY", "")
@@ -92,7 +92,127 @@ def _carry_quota(response, raw_result):
 
 # ── Tool definitions ──────────────────────────────────────────────────────────
 
+_VERDICTS = ["supported","plausible","corroborated","overstated","disputed","not_supported","not_verifiable","opinion"]
+
 TOOLS = [
+    {
+        "name": "search_claims",
+        "description": (
+            "Start here for a question about what was claimed on a topic. Searches "
+            "rated claims from live events (debates and press conferences) and from "
+            "news outlets in one call, newest first, and returns each claim with its "
+            "rating, who said it (for live events), the event or outlet, and a link "
+            "to its page. Narrow with type, verdict and a date range. A multi-word "
+            "phrase that matches nothing comes back with a count per word, so you can "
+            "tell the user the phrase was not found rather than that nothing related "
+            "exists. Credit the ratings to Verum Signal and link the pages."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "q": {
+                    "type": "string",
+                    "description": "Words to find in the claim text, case-insensitive, e.g. 'tariffs'. Fewer, more specific words match better."
+                },
+                "type": {
+                    "type": "string",
+                    "description": "Only debates or only press conferences. Setting it leaves news claims out.",
+                    "enum": ["debate", "press_conference"]
+                },
+                "verdict": {
+                    "type": "string",
+                    "description": "Only claims with this rating.",
+                    "enum": _VERDICTS
+                },
+                "since": {
+                    "type": "string",
+                    "description": "Earliest date, YYYY-MM-DD (event date for live events, article date for news)."
+                },
+                "until": {
+                    "type": "string",
+                    "description": "Latest date, YYYY-MM-DD, inclusive."
+                },
+                "source": {
+                    "type": "string",
+                    "description": "Search live events, news, or both (default all).",
+                    "enum": ["all", "events", "news"]
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "Results per section (1-25, default 10)",
+                    "default": 10
+                }
+            },
+            "required": ["q"]
+        }
+    },
+    {
+        "name": "list_event_claims",
+        "description": (
+            "List rated claims from every public debate and press conference, newest "
+            "first, filtered by topic, event type, rating and date range. Use it to "
+            "page past the first results of search_claims (when its event_claims have "
+            "has_more, the next link ends in a cursor: call this tool with the same q "
+            "and filters and that cursor), or to see what was said across live events "
+            "in a period. Each page gives pagination.next_cursor while there is more. Use "
+            "get_debate_verdicts for every claim from one debate."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "q": {
+                    "type": "string",
+                    "description": "Words to find in the claim text, case-insensitive."
+                },
+                "type": {
+                    "type": "string",
+                    "enum": ["debate", "press_conference"]
+                },
+                "verdict": {
+                    "type": "string",
+                    "enum": _VERDICTS
+                },
+                "since": {
+                    "type": "string",
+                    "description": "Earliest event date, YYYY-MM-DD."
+                },
+                "until": {
+                    "type": "string",
+                    "description": "Latest event date, YYYY-MM-DD, inclusive."
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "Number of results (1-100, default 25)",
+                    "default": 25
+                },
+                "cursor": {
+                    "type": "integer",
+                    "description": "next_cursor from a previous call, for the next page."
+                }
+            },
+            "required": []
+        }
+    },
+    {
+        "name": "live_now",
+        "description": (
+            "Is a debate or press conference being covered live right now? Returns "
+            "the event, its page and its newest rated claims, or, when nothing is "
+            "live, the next listed event. Ratings made during live coverage are "
+            "provisional and can be revised within 60 minutes."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer",
+                    "description": "How many of the newest rated claims to return (1-25, default 10)",
+                    "default": 10
+                }
+            },
+            "required": []
+        }
+    },
     {
         "name": "list_recent_claims",
         "description": (
@@ -242,7 +362,7 @@ def handle_get_debate_verdicts(args):
             "speaker": c.get("speaker"),
             "verdict": c.get("verdict"),
             "confidence_score": c.get("confidence_score"),
-            "is_provisional": c.get("is_provisional"),
+            "is_provisional": c.get("verdict_status") == "provisional",
         } for c in all_claims]
     }
     if truncated:
@@ -252,6 +372,37 @@ def handle_get_debate_verdicts(args):
             f"has more claims than were retrieved. This should be rare."
         )
     return _carry_quota(response, last_result)
+
+
+def _int(value, default, low, high):
+    """A limit from an agent may arrive as a string or be missing; never raise on it."""
+    try:
+        n = int(value)
+    except (TypeError, ValueError):
+        n = default
+    return max(low, min(n, high))
+
+
+def _pick(args, names):
+    return {k: args[k] for k in names if args.get(k) not in (None, "")}
+
+
+def handle_search_claims(args):
+    if not (args.get("q") or "").strip():
+        return {"error": "q required: the words to search for, e.g. 'tariffs'"}
+    params = _pick(args, ("q", "type", "verdict", "since", "until", "source"))
+    params["limit"] = _int(args.get("limit"), 10, 1, 25)
+    return _api("/v1/search", params)
+
+
+def handle_list_event_claims(args):
+    params = _pick(args, ("q", "type", "verdict", "since", "until", "cursor"))
+    params["limit"] = _int(args.get("limit"), 25, 1, 100)
+    return _api("/v1/event-claims", params)
+
+
+def handle_live_now(args):
+    return _api("/v1/live", {"limit": _int(args.get("limit"), 10, 1, 25)})
 
 
 def handle_list_debates(args):
@@ -267,6 +418,9 @@ def handle_get_api_status(args):
 
 
 HANDLERS = {
+    "search_claims":        handle_search_claims,
+    "list_event_claims":    handle_list_event_claims,
+    "live_now":             handle_live_now,
     "list_recent_claims":   handle_list_recent_claims,
     "get_debate_verdicts":  handle_get_debate_verdicts,
     "list_debates":         handle_list_debates,

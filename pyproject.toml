@@ -4,14 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "verumsignal-mcp"
-version = "0.2.0"
-description = "MCP server for Verum Signal: political debate claims, who said each one and how it was rated."
+version = "0.3.0"
+description = "MCP server for Verum Signal: rated political claims from debates, press conferences and the news, with who said each one."
 readme = "README.md"
 requires-python = ">=3.9"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [{ name = "Verum Signal LLC" }]
-keywords = ["mcp", "model-context-protocol", "debates", "politics", "claims", "elections"]
+keywords = ["mcp", "model-context-protocol", "debates", "press-conferences", "politics", "claims", "elections", "search"]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",

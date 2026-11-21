@@ -2,12 +2,15 @@
 
 <!-- mcp-name: io.github.brittbart/verumsignal-mcp -->
 
-An MCP server that gives LLM agents Verum Signal's political debate coverage: the claims candidates made, who said each one, and how each was rated. It also searches the claims news outlets report. Requires a Verum Signal API key.
+An MCP server that gives LLM agents Verum Signal's rated political claims: what candidates and leaders said at debates and press conferences, who said each one, and how each was rated, plus the claims news outlets report. One search covers both, and a live view shows what is being rated right now. Requires a Verum Signal API key.
 
 ## What the tools do
 
 | Tool | Returns | Explicitly does NOT |
 |---|---|---|
+| `search_claims` | Start here for a topic question. Rated claims about a topic from live events (debates and press conferences) and from news outlets in one call, newest first, each with its rating, who said it, and a link to its page. Narrow by event type, rating and date. | Store what you searched for: search terms travel in the request and are not kept. |
+| `list_event_claims` | Rated claims from every public debate and press conference, filtered by topic, event type, rating and date, with a cursor for the next page. | Score anyone: no counts or totals by rating are returned. |
+| `live_now` | Whether a debate or press conference is being covered live, with its page and its newest rated claims; otherwise the next listed event. | Show ratings as final while they are provisional: each claim says which it is. |
 | `list_debates` | Available debates with claim counts, dates, and status. | Include the claims themselves — call `get_debate_verdicts` for that. |
 | `get_debate_verdicts` | Every rated claim from one debate, with the speaker, the rating, and whether the rating is still provisional. Paginates automatically to completeness. | Truncate silently. If a debate is large enough to hit an internal safety cap, the response includes an explicit `truncated: true` flag rather than quietly returning a partial result. |
 | `list_recent_claims` | Claims reported by news outlets, with their ratings. Pass `q` to find claims about a topic; filter by outlet or rating; without `q`, most recent first. | Return quoted claims an outlet attributes to someone else, or any overall score for an outlet. |
@@ -45,7 +48,7 @@ then use `"command": "verumsignal-mcp"` with no `args` in the config above.
 
 These examples are for Claude Desktop's `claude_desktop_config.json`; other MCP clients take the same command, arguments and environment.
 
-**Verify it works:** ask your agent "which debates does Verum Signal cover?" A correctly wired server returns a list of debates with dates and claim counts. If you see an authentication error, check the key; if you see a connection error, confirm outbound HTTPS access to `api.verumsignal.com` is allowed from wherever the server runs.
+**Verify it works:** ask your agent "what has been claimed about tariffs, according to Verum Signal?" A correctly wired server returns rated claims from debates, press conferences and the news, each with a link. If you see an authentication error, check the key; if you see a connection error, confirm outbound HTTPS access to `api.verumsignal.com` is allowed from wherever the server runs.
 
 ## Getting a key
 
@@ -78,11 +81,12 @@ The rate limiter uses a fixed one-minute wall-clock window, not a sliding window
 
 ## Versioning
 
-This server is at **v0.2.0**, an honest pre-1.0 number. It targets API version v1. Ratings carry the methodology version they were made under. See `CHANGELOG.md` for version history.
+This server is at **v0.3.0**, an honest pre-1.0 number. It targets API version v1. Ratings carry the methodology version they were made under. See `CHANGELOG.md` for version history.
 
 ## Known limitations
 
 - **Outlet-level scores are not served.** The tools return individual claims and their ratings only.
 - **No rating reasoning.** A deliberate boundary — see "The data boundary" above.
-- **Debate ratings can be provisional.** Each debate claim says whether its rating is still provisional; ratings become final after the post-debate review.
+- **Live ratings can be provisional.** Each debate and press-conference claim says whether its rating is still provisional; ratings become final after the post-event review.
+- **Search is a substring match.** A phrase matches only claims that contain it; when nothing matches, the response says how many claims contain each word.
 - **Data freshness:** the API's cache refreshes every 5 minutes. This server's data is exactly as fresh as that cache.
