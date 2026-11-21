@@ -2,6 +2,12 @@
 
 All notable changes to the Verum Signal MCP server are documented here.
 
+## [0.3.1] — 2026-11-21
+
+### Added
+
+- **`speaker` on `search_claims` and `list_event_claims` — one person's rated claims.** Give a full name as it appears on the claims (exact, case-insensitive) to get that person's rated claims from debates and press conferences, newest first, as a list. `search_claims` no longer needs `q` when `speaker` is given. A name with no exact match returns `speaker_match.did_you_mean`, names on record to retry with. No counts, totals or grades are returned for any speaker, and the tool descriptions tell agents not to make them. News claims are not filtered by speaker. Backed by the API's speaker filter, which needs an API key.
+
 ## [0.3.0] — 2026-11-21
 
 ### Added

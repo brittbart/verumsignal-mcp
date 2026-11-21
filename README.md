@@ -8,8 +8,8 @@ An MCP server that gives LLM agents Verum Signal's rated political claims: what 
 
 | Tool | Returns | Explicitly does NOT |
 |---|---|---|
-| `search_claims` | Start here for a topic question. Rated claims about a topic from live events (debates and press conferences) and from news outlets in one call, newest first, each with its rating, who said it, and a link to its page. Narrow by event type, rating and date. | Store what you searched for: search terms travel in the request and are not kept. |
-| `list_event_claims` | Rated claims from every public debate and press conference, filtered by topic, event type, rating and date, with a cursor for the next page. | Score anyone: no counts or totals by rating are returned. |
+| `search_claims` | Start here for a topic question. Rated claims about a topic from live events (debates and press conferences) and from news outlets in one call, newest first, each with its rating, who said it, and a link to its page. Narrow by speaker, event type, rating and date. | Store what you searched for: search terms travel in the request and are not kept. |
+| `list_event_claims` | Rated claims from every public debate and press conference, filtered by topic, speaker, event type, rating and date, with a cursor for the next page. One speaker's claims come as a list, newest first. | Score anyone: no counts or totals by rating are returned, for a speaker or anyone else. |
 | `live_now` | Whether a debate or press conference is being covered live, with its page and its newest rated claims; otherwise the next listed event. | Show ratings as final while they are provisional: each claim says which it is. |
 | `list_debates` | Available debates with claim counts, dates, and status. | Include the claims themselves — call `get_debate_verdicts` for that. |
 | `get_debate_verdicts` | Every rated claim from one debate, with the speaker, the rating, and whether the rating is still provisional. Paginates automatically to completeness. | Truncate silently. If a debate is large enough to hit an internal safety cap, the response includes an explicit `truncated: true` flag rather than quietly returning a partial result. |
@@ -22,7 +22,7 @@ Full parameter schemas are in the tool definitions themselves (`verumsignal_mcp/
 
 Requires Python 3.9+ and no third-party dependencies.
 
-**Claude Desktop, one click:** download `verumsignal-mcp-0.3.0.mcpb` from the [latest release](https://github.com/brittbart/verumsignal-mcp/releases/latest) and open it. Claude Desktop installs the server and asks for your API key.
+**Claude Desktop, one click:** download `verumsignal-mcp-0.3.1.mcpb` from the [latest release](https://github.com/brittbart/verumsignal-mcp/releases/latest) and open it. Claude Desktop installs the server and asks for your API key.
 
 **With uv** (nothing to install first):
 
@@ -38,7 +38,7 @@ Requires Python 3.9+ and no third-party dependencies.
 }
 ```
 
-The PyPI package is at 0.2.0 for now, without `search_claims`, `list_event_claims` and `live_now`. To run 0.3.0 with uv before it catches up, use `"args": ["--from", "git+https://github.com/brittbart/verumsignal-mcp", "verumsignal-mcp"]`.
+The PyPI package is at 0.2.0 for now, without `search_claims`, `list_event_claims` and `live_now`. To run 0.3.1 with uv before it catches up, use `"args": ["--from", "git+https://github.com/brittbart/verumsignal-mcp", "verumsignal-mcp"]`.
 
 **With pip:**
 

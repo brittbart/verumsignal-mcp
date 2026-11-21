@@ -8,13 +8,13 @@
     "source": "github"
   },
   "websiteUrl": "https://verumsignal.com/developers",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "packages": [
     {
       "registryType": "mcpb",
-      "identifier": "https://github.com/brittbart/verumsignal-mcp/releases/download/v0.3.0/verumsignal-mcp-0.3.0.mcpb",
-      "version": "0.3.0",
-      "fileSha256": "5e1f5a6ef55c483fcb2ba671990012ff1d86d47fa0cefe62cccf2c0ae71f501b",
+      "identifier": "https://github.com/brittbart/verumsignal-mcp/releases/download/v0.3.1/verumsignal-mcp-0.3.1.mcpb",
+      "version": "0.3.1",
+      "fileSha256": "d6219f531196a9e018d01efa7d9d989ade102011942ced2fbc64c8e8916c8fb7",
       "transport": {
         "type": "stdio"
       },

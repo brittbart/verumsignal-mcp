@@ -18,7 +18,7 @@ import urllib.request, urllib.parse, urllib.error
 try:
     from verumsignal_mcp import __version__
 except ImportError:  # run as a loose file
-    __version__ = "0.3.0"
+    __version__ = "0.3.1"
 
 VS_API_BASE = os.environ.get("VS_API_BASE", "https://api.verumsignal.com")
 VS_API_KEY  = os.environ.get("VS_API_KEY", "")
@@ -105,14 +105,21 @@ TOOLS = [
             "to its page. Narrow with type, verdict and a date range. A multi-word "
             "phrase that matches nothing comes back with a count per word, so you can "
             "tell the user the phrase was not found rather than that nothing related "
-            "exists. Credit the ratings to Verum Signal and link the pages."
+            "exists. Pass speaker for one person's rated claims from debates and press "
+            "conferences (q is then optional). Show each claim with its own rating; do "
+            "not add up, rank or grade a person from their ratings. Credit the ratings "
+            "to Verum Signal and link the pages."
         ),
         "inputSchema": {
             "type": "object",
             "properties": {
                 "q": {
                     "type": "string",
-                    "description": "Words to find in the claim text, case-insensitive, e.g. 'tariffs'. Fewer, more specific words match better."
+                    "description": "Words to find in the claim text, case-insensitive, e.g. 'tariffs'. Fewer, more specific words match better. Required unless speaker is given."
+                },
+                "speaker": {
+                    "type": "string",
+                    "description": "One person's rated claims from debates and press conferences, by full name as it appears on the claims (exact, case-insensitive), e.g. 'John Thune'. If nothing matches, speaker_match.did_you_mean in the reply lists names on record: call again with one of them, spelled exactly, or tell the user none fits. News claims are not filtered by speaker."
                 },
                 "type": {
                     "type": "string",
@@ -143,7 +150,7 @@ TOOLS = [
                     "default": 10
                 }
             },
-            "required": ["q"]
+            "required": []
         }
     },
     {
@@ -154,7 +161,9 @@ TOOLS = [
             "page past the first results of search_claims (when its event_claims have "
             "has_more, the next link ends in a cursor: call this tool with the same q "
             "and filters and that cursor), or to see what was said across live events "
-            "in a period. Each page gives pagination.next_cursor while there is more. Use "
+            "in a period, or what one person said (speaker). Each page gives "
+            "pagination.next_cursor while there is more. Show each claim with its own "
+            "rating; do not add up, rank or grade a person from their ratings. Use "
             "get_debate_verdicts for every claim from one debate."
         ),
         "inputSchema": {
@@ -163,6 +172,10 @@ TOOLS = [
                 "q": {
                     "type": "string",
                     "description": "Words to find in the claim text, case-insensitive."
+                },
+                "speaker": {
+                    "type": "string",
+                    "description": "One person's rated claims from debates and press conferences, by full name as it appears on the claims (exact, case-insensitive), e.g. 'John Thune'. If nothing matches, speaker_match.did_you_mean in the reply lists names on record: call again with one of them, spelled exactly, or tell the user none fits. News claims are not filtered by speaker."
                 },
                 "type": {
                     "type": "string",
@@ -388,15 +401,15 @@ def _pick(args, names):
 
 
 def handle_search_claims(args):
-    if not (args.get("q") or "").strip():
-        return {"error": "q required: the words to search for, e.g. 'tariffs'"}
-    params = _pick(args, ("q", "type", "verdict", "since", "until", "source"))
+    if not (args.get("q") or "").strip() and not (args.get("speaker") or "").strip():
+        return {"error": "q or speaker required: the words to search for (e.g. 'tariffs') or a person's full name"}
+    params = _pick(args, ("q", "speaker", "type", "verdict", "since", "until", "source"))
     params["limit"] = _int(args.get("limit"), 10, 1, 25)
     return _api("/v1/search", params)
 
 
 def handle_list_event_claims(args):
-    params = _pick(args, ("q", "type", "verdict", "since", "until", "cursor"))
+    params = _pick(args, ("q", "speaker", "type", "verdict", "since", "until", "cursor"))
     params["limit"] = _int(args.get("limit"), 25, 1, 100)
     return _api("/v1/event-claims", params)
 
