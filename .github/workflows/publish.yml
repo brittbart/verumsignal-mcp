@@ -1,0 +1,49 @@
+name: Publish
+
+# Run by hand: Actions -> Publish -> Run workflow.
+# Builds the MCP bundle (.mcpb), checks it against server.json, attaches it to the
+# GitHub release for that version, and publishes server.json to the MCP Registry.
+# No tokens or logins: GitHub vouches for this repository to the registry (OIDC).
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write   # create the release and upload the bundle
+  id-token: write   # sign in to the MCP Registry as this repository
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build the bundle, check it against server.json, run it once
+        run: python3 scripts/build_mcpb.py --check
+
+      - name: Validate the bundle manifest
+        run: npx --yes @anthropic-ai/mcpb@2.1.2 validate mcpb/manifest.json
+
+      - name: Attach the bundle to the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(jq -r .version server.json)
+          if gh release view "v$V" > /dev/null 2>&1; then
+            gh release upload "v$V" "dist/verumsignal-mcp-$V.mcpb" --clobber
+          else
+            gh release create "v$V" "dist/verumsignal-mcp-$V.mcpb" \
+              --title "v$V" --notes-file dist/release-notes.md --target "$GITHUB_SHA"
+          fi
+
+      - name: Publish to the MCP Registry
+        run: |
+          curl -fsSLo /tmp/mcp-publisher.tgz \
+            https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz
+          tar -xzf /tmp/mcp-publisher.tgz -C /tmp mcp-publisher
+          /tmp/mcp-publisher login github-oidc
+          /tmp/mcp-publisher publish
